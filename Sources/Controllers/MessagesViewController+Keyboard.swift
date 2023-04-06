@@ -92,8 +92,20 @@ extension MessagesViewController {
             messagesCollectionView.verticalScrollIndicatorInsets.bottom = newBottomInset
         }
 
-        UIView.animate(withDuration: 0.3, delay: 0, options: .curveEaseOut) {
-            self.messagesCollectionView.contentOffset = .init(x: 0, y: self.messagesCollectionView.contentOffset.y + differenceOfBottomInset)
+        if !lockAutoScroll {
+            guard differenceOfBottomInset != 0 else { return }
+            func rejigContentOffset() {
+                self.messagesCollectionView.contentOffset = .init(x: 0, y: self.messagesCollectionView.contentOffset.y + differenceOfBottomInset)
+            }
+            if differenceOfBottomInset > 200.0 {
+                UIView.animate(withDuration: 0.3, delay: 0, options: .curveEaseOut) {
+                    rejigContentOffset()
+                }
+            } else {
+                UIView.performWithoutAnimation {
+                    rejigContentOffset()
+                }
+            }
         }
     }
     
