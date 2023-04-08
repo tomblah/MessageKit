@@ -66,7 +66,7 @@ open class MessagesViewController: UIViewController, UICollectionViewDelegateFlo
     }
   }
     
-  open var lockAutoScroll = false
+//  open var lockAutoScroll = false
 
   open override func viewDidLoad() {
     super.viewDidLoad()
