@@ -80,33 +80,29 @@ extension MessagesViewController {
     
     /// Updates bottom messagesCollectionView inset based on the position of inputContainerView
     internal func updateMessageCollectionViewBottomInset() {
+        // FIXME: this needs a cleanup
         let collectionViewHeight = messagesCollectionView.frame.maxY
         let newBottomInset = collectionViewHeight - (inputContainerView.frame.minY - additionalBottomInset) -
         automaticallyAddedBottomInset
         let normalizedNewBottomInset = max(0, newBottomInset)
         let differenceOfBottomInset = newBottomInset - messageCollectionViewBottomInset
         
-        UIView.performWithoutAnimation {
-            guard differenceOfBottomInset != 0 else { return }
-            messagesCollectionView.contentInset.bottom = normalizedNewBottomInset
-            messagesCollectionView.verticalScrollIndicatorInsets.bottom = newBottomInset
-        }
-        
-        // if !lockAutoScroll {
         guard differenceOfBottomInset != 0 else { return }
-        func rejigContentOffset() {
-            self.messagesCollectionView.contentOffset = .init(x: 0, y: self.messagesCollectionView.contentOffset.y + differenceOfBottomInset)
+        
+        let oldContentOffsetY = messagesCollectionView.contentOffset.y
+        UIView.animate(withDuration: 0.3, delay: 0, options: .curveEaseOut) {
+            self.messagesCollectionView.contentInset.bottom = normalizedNewBottomInset
+            self.messagesCollectionView.verticalScrollIndicatorInsets.bottom = newBottomInset
         }
-        if differenceOfBottomInset > 200.0 {
-            UIView.animate(withDuration: 0.3, delay: 0, options: .curveEaseOut) {
-                rejigContentOffset()
-            }
-        } else {
-            UIView.performWithoutAnimation {
-                rejigContentOffset()
-            }
+        let newContentOffsetY = messagesCollectionView.contentOffset.y
+        let oldNewContentOffsetYDifference = newContentOffsetY - oldContentOffsetY
+
+/*        let oldNewContentOffsetYDifferenceString = newContentOffsetY != oldContentOffsetY ? ", DIFFERENCE: \(oldNewContentOffsetYDifference)" : ""
+        print("SCROLL_DEBUG self.messagesCollectionView.contentOffset.y: \(self.messagesCollectionView.contentOffset.y), differenceOfBottomInset: \(differenceOfBottomInset), messagesCollectionView.contentSize.height: \(messagesCollectionView.contentSize.height), messagesCollectionView.bounds.height: \(messagesCollectionView.bounds.height), oldContentOffsetY: \(oldContentOffsetY), newContentOffsetY: \(newContentOffsetY),\(oldNewContentOffsetYDifferenceString)") */
+        
+        UIView.animate(withDuration: 0.3, delay: 0, options: .curveEaseOut) {
+            self.messagesCollectionView.contentOffset = .init(x: 0, y: self.messagesCollectionView.contentOffset.y + differenceOfBottomInset - oldNewContentOffsetYDifference)
         }
-        // }
     }
     
     // MARK: Private
